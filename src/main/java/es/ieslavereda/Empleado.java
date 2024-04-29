@@ -96,4 +96,19 @@ public class Empleado {
     public void setDomicilio(String domicilio) {
         this.domicilio = domicilio;
     }
+
+    @Override
+    public String toString() {
+        return "Empleado{" +
+                "idEmpleado=" + idEmpleado +
+                ", DNI='" + DNI + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", apellidos='" + apellidos + '\'' +
+                ", cp='" + cp + '\'' +
+                ", email='" + email + '\'' +
+                ", fechaNac=" + fechaNac +
+                ", cargo='" + cargo + '\'' +
+                ", domicilio='" + domicilio + '\'' +
+                '}';
+    }
 }
