@@ -73,7 +73,7 @@ public class Empleado {
         this.email = email;
     }
 
-    public Date getFechaNac() {
+    public java.sql.Date getFechaNac() {
         return fechaNac;
     }
 

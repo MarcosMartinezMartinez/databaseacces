@@ -22,11 +22,13 @@ public class TestMySQL {
         System.out.println(empleados.authenticate("7X","1111"));
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------------------------");
 
-        System.out.println(empleados.authenticate("7X","1' OR PASSWORD != '1"));
+      /*  System.out.println(empleados.authenticate("7X","1' OR PASSWORD != '1"));
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------------------------");
-
+*/
         System.out.println(empleados.getEmpleadosPorCargo("jefes"));
         System.out.println("-----------------------------------------------------------------------------------------------------------------------------------------------------------------");
+
+        System.out.println(empleados.getEmpleado("2x"));
 
 
 

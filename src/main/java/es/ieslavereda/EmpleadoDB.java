@@ -111,7 +111,7 @@ public class EmpleadoDB implements AlmacenDatosDB {
         return empleado;
     }
 
-    @Override
+/*    @Override
     public Empleado getEmpleado(String dni) {
         DataSource dataSource= MydataSource.getMySQLDataSource();
         Empleado empleado = null;
@@ -136,7 +136,36 @@ public class EmpleadoDB implements AlmacenDatosDB {
         }
 
         return empleado;
+    }*/
+@Override
+public Empleado getEmpleado(String dni) {
+    DataSource dataSource= MydataSource.getMySQLDataSource();
+    Empleado empleado = null;
+    String query = "SELECT * FROM EMPLEADO WHERE DNI = ?";
+
+    try(Connection connection = dataSource.getConnection();
+        PreparedStatement ps= connection.prepareStatement(query)
+    ){
+        ps.setString(1,dni);
+        ResultSet resultSet = ps.executeQuery();
+        resultSet.next();
+        empleado = new Empleado(
+                resultSet.getInt(1),
+                resultSet.getString(2),
+                resultSet.getString(3),
+                resultSet.getString(4),
+                resultSet.getString(5),
+                resultSet.getString(6),
+                resultSet.getDate(7),
+                resultSet.getString(8),
+                resultSet.getString(11));
+
+    } catch (SQLException e){
+        e.printStackTrace();
     }
+
+    return empleado;
+}
 
 /*    @Override
     public boolean authenticate(String login, String passwd) {
@@ -154,7 +183,7 @@ public class EmpleadoDB implements AlmacenDatosDB {
         }
         return autenticado;
     }*/
-@Override
+/*@Override
 public boolean authenticate(String login, String passwd) {
     boolean autenticado = false;
     DataSource dataSource = MydataSource.getMySQLDataSource();
@@ -173,8 +202,29 @@ public boolean authenticate(String login, String passwd) {
         e.printStackTrace();
     }
     return autenticado;
-}
+}*/
+@Override
+public boolean authenticate(String login, String passwd) {
+    boolean autenticado = false;
+    DataSource dataSource = MydataSource.getMySQLDataSource();
+    String query = "{ ? = call autentificar(?,?) }";
 
+    try(Connection connection= dataSource.getConnection();
+        CallableStatement cs = connection.prepareCall(query);
+    ){
+        cs.setString(2,login);
+        cs.setString(3,passwd);
+        ResultSet resultSet = cs.executeQuery();
+        resultSet.next();
+        if(resultSet.getInt(1)>0)
+            autenticado=true;
+
+    } catch (SQLException e){
+        e.printStackTrace();
+    }
+    return autenticado;
+}
+/*
     @Override
     public List<Empleado> getEmpleadosPorCargo(String cargo) {
         List<Empleado> empleados = new ArrayList<>();
@@ -204,5 +254,64 @@ public boolean authenticate(String login, String passwd) {
             e.printStackTrace();
         }
         return empleados;
+    }*/
+
+    @Override
+    public List<Empleado> getEmpleadosPorCargo(String cargo) {
+        List<Empleado> empleados = new ArrayList<>();
+        DataSource dataSource = MydataSource.getMySQLDataSource();
+        String query = "call empleado_por_cargo(?)";
+        try(Connection connection= dataSource.getConnection();
+           CallableStatement cs = connection.prepareCall(query)){
+            cs.setString(1,cargo);
+            ResultSet resultSet = cs.executeQuery();
+
+            Empleado empleado;
+            while(resultSet.next()){
+                empleado = new Empleado(
+                        resultSet.getInt("idEmpleado"),
+                        resultSet.getString("DNI"),
+                        resultSet.getString("nombre"),
+                        resultSet.getString("apellidos"),
+                        resultSet.getString("CP"),
+                        resultSet.getString("email"),
+                        resultSet.getDate("fechaNac"),
+                        resultSet.getString("cargo"),
+                        resultSet.getString("domicilio"));
+                empleados.add(empleado);
+            }
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return empleados;
+    }
+
+
+
+    @Override
+    public int addEmpleadoProcedure(Empleado empleado) {
+        DataSource ds = MydataSource.getMySQLDataSource();
+        String query = " { call insertarCliente(?,?,?,?,?,?,?,?)}";
+        try(Connection connection = ds.getConnection();
+            CallableStatement cs = connection.prepareCall(query);
+        ) {
+            cs.setString(1, empleado.getDNI());
+            cs.setString(2, empleado.getNombre());
+            cs.setString(3, empleado.getApellidos());
+            cs.setString(4, empleado.getCp());
+            cs.setString(5, empleado.getEmail());
+            cs.setDate(6, empleado.getFechaNac());
+            cs.setString(7, empleado.getCargo());
+            cs.setString(8, empleado.getDomicilio());
+            cs.executeUpdate();
+
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return added;
+    }
+
     }
 }
